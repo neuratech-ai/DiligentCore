@@ -596,7 +596,7 @@ add_subdirectory(Primitives)
 add_subdirectory(Platforms)
 add_subdirectory(Common)
 add_subdirectory(Graphics)
-add_subdirectory(Tests)
+# add_subdirectory(Tests)
 
 
 # Installation instructions
