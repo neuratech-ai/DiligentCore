@@ -47,8 +47,10 @@
 // USE_PIX, DBG, _DEBUG, PROFILE, or PROFILE_BUILD is defined.
 #        define USE_PIX
 #    endif
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
 #    include "include/WinPixEventRuntime/pix3.h"
+#pragma clang diagnostic pop
 #endif
 
 namespace Diligent
