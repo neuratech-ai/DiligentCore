@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required(VERSION 3.10)
 
 project(Diligent-ShaderTools CXX)
 
@@ -19,7 +19,7 @@ set(SOURCE
 )
 
 set(DXC_SUPPORTED FALSE)
-if((PLATFORM_WIN32 AND NOT MINGW_BUILD) OR PLATFORM_UNIVERSAL_WINDOWS OR PLATFORM_LINUX)
+if((PLATFORM_WIN32 AND NOT MINGW_BUILD) OR PLATFORM_UNIVERSAL_WINDOWS OR PLATFORM_LINUX OR PLATFORM_MACOS)
     set(DXC_SUPPORTED TRUE)
 endif()
 
@@ -35,7 +35,7 @@ endif()
 
 set(ENABLE_WGSL FALSE)
 if(WEBGPU_SUPPORTED)
-	set(ENABLE_WGSL TRUE)
+    set(ENABLE_WGSL TRUE)
 endif()
 
 if(ENABLE_GLSL)
@@ -63,7 +63,7 @@ if(D3D11_SUPPORTED OR D3D12_SUPPORTED)
     list(APPEND INCLUDE include/ResourceBindingMap.hpp)
 endif()
 
-if (DXC_SUPPORTED)
+if(DXC_SUPPORTED)
     list(APPEND INCLUDE include/DXCompiler.hpp include/DXCompilerLibrary.hpp)
     list(APPEND SOURCE src/DXCompiler.cpp src/DXCompilerLibrary.cpp)
 
@@ -71,7 +71,7 @@ if (DXC_SUPPORTED)
         list(APPEND SOURCE src/DXCompilerLibraryWin32.cpp)
     elseif(PLATFORM_UNIVERSAL_WINDOWS)
         list(APPEND SOURCE src/DXCompilerLibraryUWP.cpp)
-    elseif(PLATFORM_LINUX)
+    elseif(PLATFORM_LINUX OR PLATFORM_MACOS)
         list(APPEND SOURCE src/DXCompilerLibraryLinux.cpp)
     else()
         message(FATAL_ERROR "Unexpected platform")
@@ -100,13 +100,13 @@ if(DILIGENT_USE_SPIRV_TOOLCHAIN)
     set(ENABLE_SPIRV TRUE)
     # NB: do not use if(TARGET glsang) check here as glsang may be present
     #     (e.g. added by external project), but DILIGENT_NO_GLSLANG may still be set
-    if (NOT ${DILIGENT_NO_GLSLANG})
+    if(NOT ${DILIGENT_NO_GLSLANG})
         set(USE_GLSLANG TRUE)
-        if (TARGET SPIRV-Tools-opt)
+        if(TARGET SPIRV-Tools-opt)
             set(USE_SPIRV_TOOLS TRUE)
         endif()
     endif()
-    if (NOT ${DILIGENT_NO_HLSL} AND TARGET SPIRV-Tools-opt)
+    if(NOT ${DILIGENT_NO_HLSL} AND TARGET SPIRV-Tools-opt)
         set(USE_SPIRV_TOOLS TRUE)
     endif()
 endif()
@@ -115,12 +115,12 @@ if(ENABLE_SPIRV)
     list(APPEND SOURCE src/SPIRVShaderResources.cpp src/SPIRVUtils.cpp)
     list(APPEND INCLUDE include/SPIRVShaderResources.hpp include/SPIRVUtils.hpp)
 
-    if (${USE_SPIRV_TOOLS})
+    if(${USE_SPIRV_TOOLS})
         list(APPEND SOURCE src/SPIRVTools.cpp)
         list(APPEND INCLUDE include/SPIRVTools.hpp)
     endif()
 
-    if (${USE_GLSLANG})
+    if(${USE_GLSLANG})
         list(APPEND SOURCE src/GLSLangUtils.cpp)
         list(APPEND INCLUDE include/GLSLangUtils.hpp)
     endif()
@@ -129,21 +129,21 @@ endif()
 add_library(Diligent-ShaderTools STATIC ${SOURCE} ${INCLUDE} ${DXBC_CHECKSUM_SOURCE})
 
 target_include_directories(Diligent-ShaderTools
-PUBLIC
+    PUBLIC
     include
-PRIVATE
+    PRIVATE
     ../GraphicsEngine/include
 )
 
-if (DXC_SUPPORTED)
+if(DXC_SUPPORTED)
     target_include_directories(Diligent-ShaderTools PUBLIC ../../ThirdParty/DirectXShaderCompiler)
 
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         target_compile_options(Diligent-ShaderTools PRIVATE -fms-extensions)
     endif()
 
-    if (NOT PLATFORM_WIN32)
-        if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
+    if(NOT PLATFORM_WIN32)
+        if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
             CMAKE_CXX_COMPILER_ID MATCHES "GNU")
             target_link_libraries(Diligent-ShaderTools PRIVATE dl)
         endif()
@@ -151,15 +151,15 @@ if (DXC_SUPPORTED)
 endif()
 
 target_link_libraries(Diligent-ShaderTools
-PRIVATE
+    PRIVATE
     Diligent-BuildSettings
     Diligent-GraphicsAccessories
     Diligent-Common
-PUBLIC
+    PUBLIC
     Diligent-GraphicsEngineInterface
 )
 
-if (TARGET Diligent-HLSL2GLSLConverterLib AND NOT ${DILIGENT_NO_HLSL})
+if(TARGET Diligent-HLSL2GLSLConverterLib AND NOT ${DILIGENT_NO_HLSL})
     target_include_directories(Diligent-ShaderTools PRIVATE ../HLSL2GLSLConverterLib/include)
     target_link_libraries(Diligent-ShaderTools PRIVATE Diligent-HLSL2GLSLConverterLib)
 else()
@@ -168,24 +168,24 @@ endif()
 
 if(ENABLE_SPIRV)
     target_link_libraries(Diligent-ShaderTools
-    PRIVATE
+        PRIVATE
         spirv-cross-core
     )
     if(SPIRV_CROSS_NAMESPACE_OVERRIDE)
         target_compile_definitions(Diligent-ShaderTools PUBLIC DILIGENT_SPIRV_CROSS_NAMESPACE=${SPIRV_CROSS_NAMESPACE_OVERRIDE})
     endif()
 
-    if (${USE_SPIRV_TOOLS})
+    if(${USE_SPIRV_TOOLS})
         target_link_libraries(Diligent-ShaderTools
-        PRIVATE
+            PRIVATE
             SPIRV-Tools-opt
         )
         target_compile_definitions(Diligent-ShaderTools PRIVATE USE_SPIRV_TOOLS=1)
     endif()
 
-    if (${USE_GLSLANG})
+    if(${USE_GLSLANG})
         target_link_libraries(Diligent-ShaderTools
-        PRIVATE
+            PRIVATE
             SPIRV
             glslang
         )
@@ -194,11 +194,11 @@ endif()
 
 if(ENABLE_WGSL)
     target_link_libraries(Diligent-ShaderTools
-    PRIVATE
+        PRIVATE
         libtint
         # We include this library because when building for Emscripten, libtint does not include this library in the dependency list
-        tint_lang_wgsl_inspector 
-    ) 
+        tint_lang_wgsl_inspector
+    )
 endif()
 
 set(HLSL_DEFINITIONS include/HLSLDefinitions.fxh)
@@ -220,11 +220,11 @@ target_sources(Diligent-ShaderTools PRIVATE
 
 find_package(Python3 REQUIRED)
 add_custom_command(OUTPUT ${HLSL_DEFINITIONS_INC} # We must use full path here!
-                   COMMAND ${Python3_EXECUTABLE} ${FILE2STRING_PATH} ${HLSL_DEFINITIONS} ${HLSL_DEFINITIONS_INC}
-                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                   MAIN_DEPENDENCY ${HLSL_DEFINITIONS}
-                   COMMENT "Processing HLSLDefinitions.fxh"
-                   VERBATIM
+    COMMAND ${Python3_EXECUTABLE} ${FILE2STRING_PATH} ${HLSL_DEFINITIONS} ${HLSL_DEFINITIONS_INC}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    MAIN_DEPENDENCY ${HLSL_DEFINITIONS}
+    COMMENT "Processing HLSLDefinitions.fxh"
+    VERBATIM
 )
 
 set_common_target_properties(Diligent-ShaderTools 17)
@@ -232,7 +232,7 @@ set_common_target_properties(Diligent-ShaderTools 17)
 source_group("src" FILES ${SOURCE})
 source_group("include" FILES ${INCLUDE})
 source_group("interface" FILES ${INTERFACE})
-if (DXBC_CHECKSUM_SOURCE)
+if(DXBC_CHECKSUM_SOURCE)
     source_group("ThirdParty\\DXBCChecksum" FILES ${DXBC_CHECKSUM_SOURCE})
 endif()
 source_group("generated" FILES ${HLSL_DEFINITIONS_INC})

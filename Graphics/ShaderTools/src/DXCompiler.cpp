@@ -80,7 +80,9 @@ public:
     DXCompilerImpl(DXCompilerTarget Target, Uint32 APIVersion, const char* LibName) :
         m_Library{Target, LibName != nullptr && LibName[0] != '\0' ? LibName : (Target == DXCompilerTarget::Direct3D12 ? "dxcompiler" : "spv_dxcompiler")},
         m_APIVersion{APIVersion}
-    {}
+    {
+        std::cout << "DXCompilerImpl created with target: " << static_cast<int>(Target) << ", API version: " << APIVersion << ", library: " << LibName << std::endl;
+    }
 
     ShaderVersion GetMaxShaderModel() override final
     {

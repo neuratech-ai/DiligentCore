@@ -37,7 +37,7 @@
 #    include <Unknwn.h>
 #    include "WinHPostface.h"
 
-#elif PLATFORM_LINUX
+#elif PLATFORM_LINUX || PLATFORM_MACOS
 
 #else
 #    error Unsupported platform
