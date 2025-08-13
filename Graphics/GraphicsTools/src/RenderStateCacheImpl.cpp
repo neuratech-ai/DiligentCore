@@ -174,7 +174,7 @@ RenderStateCacheImpl::RenderStateCacheImpl(IReferenceCounters*               pRe
         pArchiverFactory = GetArchiverFactory();
     }
 #else
-    pArchiverFactory       = GetArchiverFactory();
+    pArchiverFactory = GetArchiverFactory();
 #endif
     VERIFY_EXPR(pArchiverFactory != nullptr);
 
@@ -190,7 +190,8 @@ RenderStateCacheImpl::RenderStateCacheImpl(IReferenceCounters*               pRe
             break;
 
         case RENDER_DEVICE_TYPE_D3D12:
-            SerializationDeviceCI.D3D12.ShaderVersion = SerializationDeviceCI.DeviceInfo.MaxShaderVersion.HLSL;
+            SerializationDeviceCI.D3D12.ShaderVersion  = SerializationDeviceCI.DeviceInfo.MaxShaderVersion.HLSL;
+            SerializationDeviceCI.D3D12.DxCompilerPath = CreateInfo.DxCompilerPath;
             break;
 
         case RENDER_DEVICE_TYPE_GL:
@@ -200,7 +201,8 @@ RenderStateCacheImpl::RenderStateCacheImpl(IReferenceCounters*               pRe
             break;
 
         case RENDER_DEVICE_TYPE_VULKAN:
-            SerializationDeviceCI.Vulkan.ApiVersion = SerializationDeviceCI.DeviceInfo.APIVersion;
+            SerializationDeviceCI.Vulkan.ApiVersion     = SerializationDeviceCI.DeviceInfo.APIVersion;
+            SerializationDeviceCI.Vulkan.DxCompilerPath = CreateInfo.DxCompilerPath;
             break;
 
         case RENDER_DEVICE_TYPE_METAL:
@@ -493,10 +495,10 @@ struct RenderStateCacheImpl::SerializedPsoCIWrapperBase
         ConvertShadersToSerialized<>(pSerializationDevice, DeviceType);
     }
 
-    SerializedPsoCIWrapperBase(const SerializedPsoCIWrapperBase&) = delete;
-    SerializedPsoCIWrapperBase(SerializedPsoCIWrapperBase&&)      = delete;
+    SerializedPsoCIWrapperBase(const SerializedPsoCIWrapperBase&)            = delete;
+    SerializedPsoCIWrapperBase(SerializedPsoCIWrapperBase&&)                 = delete;
     SerializedPsoCIWrapperBase& operator=(const SerializedPsoCIWrapperBase&) = delete;
-    SerializedPsoCIWrapperBase& operator=(SerializedPsoCIWrapperBase&&) = delete;
+    SerializedPsoCIWrapperBase& operator=(SerializedPsoCIWrapperBase&&)      = delete;
 
     void SetName(const char* Name)
     {
