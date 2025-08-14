@@ -292,11 +292,6 @@ void RootParamsBuilder::RootTableData::Extend(Uint32 NumExtraRanges)
     d3d12Tbl.NumDescriptorRanges += NumExtraRanges;
     Ranges.resize(d3d12Tbl.NumDescriptorRanges);
     d3d12Tbl.pDescriptorRanges = Ranges.data();
-
-#ifdef DILIGENT_DEBUG
-    for (Uint32 i = d3d12Tbl.NumDescriptorRanges - NumExtraRanges; i < d3d12Tbl.NumDescriptorRanges; ++i)
-        Ranges[i].RangeType = InvalidDescriptorRangeType;
-#endif
 }
 
 RootParamsBuilder::RootTableData& RootParamsBuilder::AddRootTable(Uint32                  RootIndex,
